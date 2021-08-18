@@ -1,0 +1,199 @@
+'''
+    1.任务1：
+    三组开发：工行
+    三组开发：农行
+    任务2：
+        工行与农行跨行转账的手续费
+        1.转账2000元以下。    异地同行或跨行转账手续费是ATM转账是1.6元/笔.
+        2.转账2000-5000元。   异地同行或跨行转账手续费是ATM转账是4元/笔.
+        3.转账5000-10000元。  异地同行或跨行转账手续费是ATM转账是8元/笔
+        4.转账10000-50000元。 异地同行或跨行转账手续费是ATM转账是12元/笔。
+        5.转账50000元以上。   异地同行或跨行转账手续费是ATM转账金额的0.03%，最高50元。
+
+
+
+'''
+
+
+# 准备数据
+bank = {}
+bank_name = "中国工商银行昌平回龙观支行ICBC-568-01502"
+import random
+def welcome():
+    print("----------------------------------")
+    print("-   中国工商银行账户管理系统       -")
+    print("----------------------------------")
+    print("-  1.开户                         -")
+    print("-  2.存钱                         -")
+    print("-  3.取钱                         -")
+    print("-  4.转账                         -")
+    print("-  5.查询                         -")
+    print("-  6.Bye!                         -")
+    print("----------------------------------")
+
+
+def bank_addUser(username,password,country,province,street,door,account,money):
+    # 是否已满
+    if len(bank) >= 100:
+        return 3
+    # 是否存在
+    if username in bank:
+        return 2
+    # 正常开户
+    bank[username] = {
+        "account":account,
+        "password":password,
+        "country":country,
+        "province":province,
+        "street":street,
+        "door":door,
+        "money":money,
+        "bank_name":bank_name
+    }
+    return 1
+def bank_saving(username,savingmoney):
+    if username not in bank:
+        return "false"
+    else:
+        bank[username]["money"] = bank[username]["money"] + savingmoney
+        return 1
+def bank_takemoney(username,password,takethemoney):
+
+    if username not in bank:
+        return 1
+    if password != bank[username]["password"]:
+        return 2
+    if takethemoney > bank[username]["money"]:
+        return 3
+    else:
+        bank[username]["money"] = bank[username]["money"] - takethemoney
+        return 4
+def bank_transfer(chuusername,password,ruusername,transfermoney):
+    if chuusername not in bank or ruusername not in bank:
+        return 1
+    elif password != bank[chuusername]["password"]:
+        return 2
+    elif transfermoney > bank[chuusername]["money"]:
+        return 3
+    else :
+        bank[chuusername]["money"] = bank[chuusername]["money"] - transfermoney
+        bank[ruusername]["money"] = bank[ruusername]["money"] + transfermoney
+        return 4
+def bank_inquire(username,password):
+    if username not in bank:
+        return 1
+    elif password != bank[username]["password"]:
+        return 2
+    else:
+        return 3
+def addUser():
+    username = input("请输入用户名：")
+    password = input("请输入密码：")
+    country = input("亲输入国籍：")
+    province = input("请输入省份：")
+    street = input("请输入街道：")
+    door = input("请输入门牌号：")
+    money = int(input("请初始化您的开卡余额："))
+    account = random.randint(10000000,99999999)
+    status = bank_addUser(username,password,country,province,street,door,account,money)
+    if status == 3:
+        print("对不起，银行库已满，请携带证件到其他银行办理！")
+    if status == 2:
+        print("对不起，您已开过户！请不要重复开户！")
+    if status == 1:
+        print("恭喜，开户成功！以下是您的开户信息：")
+        info = '''
+        -----------------------------
+                个人信息
+            账号：%s
+            用户名：%s
+            密码：*****
+            地址：
+                国籍：%s
+                省份：%s
+                街道：%s
+                门牌号：%s
+            余额：%s
+            开户行名称：%s
+        -------------------------------
+        '''
+        print(info   %(account,username,country,province,street,door,money,bank_name))
+
+def saving():
+    username = input("请输入您的用户名：")
+    savingmoney = int(input("请输入存款金额："))
+    cc = bank_saving(username,savingmoney)
+    if cc == "false":
+        print("您输入的用户不存在")
+    if cc == 1 :
+        print("存款成功，您的余额为：",bank[username]["money"])
+def takemoney():
+    username = input("请输入您的用户名：")
+    password = input("请输入您的密码：")
+    takethemoney = int(input("请输入取款金额："))
+    qq = bank_takemoney(username,password,takethemoney)
+    if qq == 1:
+        print("您输入的用户不存在")
+    elif qq == 2:
+        print("密码错误")
+    elif qq == 3:
+        print("您的余额不足")
+    else :
+        print("取款成功！您的余额还剩：",bank[username]["money"])
+def transfer():
+    chuusername = input("请输入您的用户名：")
+    password = input("请输入您的密码：")
+    ruusername = input("请输入转入用户名：")
+    transfermoney = int(input("请输入转账金额："))
+    zz = bank_transfer(chuusername,password,ruusername,transfermoney)
+    if zz == 1:
+        print("用户名不存在")
+    elif zz == 2:
+        print("密码错误")
+    elif zz == 3:
+        print("余额不足")
+    else :
+        print("转账成功，余额还剩：",bank[chuusername]["money"])
+def inquire():
+    username = input("请输入用户名：")
+    password = input("请输入密码：")
+    ch = bank_inquire(username,password)
+    if ch == 1:
+        print("用户名不存在")
+    elif ch == 2:
+        print("密码错误")
+    else:
+        print("以下是您的信息")
+        print("-------------------------")
+        print("当前账号为：",bank[username]["account"])
+        print("用户名：",username)
+        print("余额：",bank[username]["money"])
+        print("密码：*****")
+        print("地址：",bank[username]["country"],bank[username]["province"],bank[username]["street"],bank[username]["door"])
+        print("开户行：",bank[username]["bank_name"])
+while True:
+    welcome()
+    chose = input("请输入业务编号：")
+    if chose == "1":
+        addUser()
+    elif chose == "2":
+        saving()
+    elif chose == "3":
+        takemoney()
+    elif chose == "4":
+        transfer()
+    elif chose == "5":
+        inquire()
+    elif chose == "6":
+        print("欢迎下次光临！")
+        break
+    else:
+        print("对不起，别瞎弄！再弄三次锁定！")
+
+
+
+
+
+
+
+
